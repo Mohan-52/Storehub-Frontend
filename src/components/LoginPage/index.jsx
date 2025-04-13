@@ -41,7 +41,6 @@ const Login = () => {
       }
 
       Cookies.set("jwt_token", data.token, { expires: "30d" });
-      localStorage.setItem("role", data.role);
       navigate("/");
     } catch (err) {
       setErrorMsg(data.message || "Some thing went wrong");
