@@ -16,8 +16,12 @@ const Signup = () => {
   const [errorMsg, setErrorMsg] = useState("");
 
   const validateName =
-    formData.name.trim().length >= 20 && formData.name.trim().length <= 60;
-  const validateAddress = formData.address.trim().length <= 400;
+    formData.name.trim().length >= 5 && formData.name.trim().length <= 60;
+
+  const validateAddress =
+    formData.address.trim().length >= 5 &&
+    formData.address.trim().length <= 400;
+
   const validatePassword =
     /^(?=.*[A-Z])(?=.*[!@#$%^&*])[A-Za-z\d!@#$%^&*]{8,16}$/.test(
       formData.password
@@ -35,15 +39,15 @@ const Signup = () => {
     e.preventDefault();
     setErrorMsg("");
 
+    const apiUrl = "https://storehub-backend-wd2r.onrender.com/signup";
+    const options = {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(formData),
+    };
+
     try {
-      const response = await fetch(
-        "https://storehub-backend-wd2r.onrender.com/signup",
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(formData),
-        }
-      );
+      const response = await fetch(apiUrl, options);
 
       const data = await response.json();
 
@@ -53,77 +57,88 @@ const Signup = () => {
       }
 
       alert(data.message);
-
       navigate("/login");
     } catch (err) {
-      setErrorMsg(data.message);
+      console.log(err);
+      setErrorMsg();
     }
   };
 
   return (
-    <div className="signup-container">
-      <form className="signup-box" onSubmit={handleSubmit}>
-        <h2>Signup</h2>
-
-        {errorMsg && <p className="signup-error">{errorMsg}</p>}
-
-        <label>Name</label>
-        <input
-          className="signup-input"
-          name="name"
-          value={formData.name}
-          onChange={handleChange}
-          required
+    <div className="bg-conatiner">
+      <div className="signup-container flex">
+        <img
+          src="https://res.cloudinary.com/dr2f4tmgc/image/upload/v1744777713/sginup-img_vg94ue.jpg"
+          alt="sigupImg"
+          className="signipImg"
         />
+        <form className="form" onSubmit={handleSubmit}>
+          <h2>Signup</h2>
 
-        <label>Email</label>
-        <input
-          className="signup-input"
-          type="email"
-          name="email"
-          value={formData.email}
-          onChange={handleChange}
-          required
-        />
+          {errorMsg && <p className="signup-error">{errorMsg}</p>}
 
-        <label>Password</label>
-        <input
-          className="signup-input"
-          type={showPassword ? "text" : "password"}
-          name="password"
-          value={formData.password}
-          onChange={handleChange}
-          required
-        />
-
-        <div className="signup-checkbox">
+          <label>Name</label>
           <input
-            type="checkbox"
-            id="showSignupPassword"
-            checked={showPassword}
-            onChange={() => setShowPassword(!showPassword)}
+            className="styled-input "
+            name="name"
+            value={formData.name}
+            onChange={handleChange}
+            required
           />
-          <label htmlFor="showSignupPassword">Show Password</label>
-        </div>
 
-        <label>Address</label>
-        <textarea
-          className="signup-input"
-          name="address"
-          value={formData.address}
-          onChange={handleChange}
-          rows={3}
-          required
-        />
+          <label>Email</label>
+          <input
+            className="styled-input"
+            type="email"
+            name="email"
+            value={formData.email}
+            onChange={handleChange}
+            required
+          />
 
-        <button className="signup-button" type="submit" disabled={!isFormValid}>
-          Sign Up
-        </button>
+          <label>Password</label>
+          <input
+            className="styled-input"
+            type={showPassword ? "text" : "password"}
+            name="password"
+            value={formData.password}
+            onChange={handleChange}
+            required
+          />
 
-        <p className="signup-text">
-          Already have an account? <Link to="/login">Login</Link>
-        </p>
-      </form>
+          <div className="signup-checkbox">
+            <input
+              type="checkbox"
+              id="showSignupPassword"
+              checked={showPassword}
+              onChange={() => setShowPassword(!showPassword)}
+            />
+            <label htmlFor="showSignupPassword">Show Password</label>
+          </div>
+
+          <label>Address</label>
+          <textarea
+            className="styled-input text-area"
+            name="address"
+            value={formData.address}
+            onChange={handleChange}
+            rows={3}
+            required
+          />
+
+          <button
+            className="signup-button"
+            type="submit"
+            disabled={!isFormValid}
+          >
+            Sign Up
+          </button>
+
+          <p className="signup-text">
+            Already have an account? <Link to="/login">Login</Link>
+          </p>
+        </form>
+      </div>
     </div>
   );
 };

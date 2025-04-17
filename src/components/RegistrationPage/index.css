@@ -2,7 +2,9 @@
   display: flex;
   justify-content: center;
   align-items: center;
+  gap: 20px;
   padding: 1rem;
+  align-items: stretch;
 }
 
 .signup-box {
@@ -74,4 +76,13 @@
 
 .signup-checkbox input {
   margin-right: 8px;
+}
+
+.signipImg {
+  width: 500px;
+  border-radius: 12px;
+}
+
+.text-area {
+  height: 50px;
 }

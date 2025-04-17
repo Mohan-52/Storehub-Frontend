@@ -1,50 +1,55 @@
 import React, { useState } from "react";
 import { Link, useNavigate, Navigate } from "react-router-dom";
 import Cookies from "js-cookie";
+import { useContext } from "react";
+import { userContext } from "../../context/context";
 import "./index.css";
 
-const Login = () => {
+function Login() {
   const navigate = useNavigate();
+  const { setUserRole } = useContext(userContext);
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
-  const [errorMsg, setErrorMsg] = useState("");
+  const [showPwd, setShowPwd] = useState(false);
+  const [errorP, setErrorP] = useState("");
 
-  const isPasswordValid = password.length >= 8 && password.length <= 16;
-  const isFormValid = email.trim() !== "" && isPasswordValid;
+  const onValidUser = (data) => {
+    Cookies.set("jwt_token", data.jwtToken, { expires: 30 });
+    Cookies.set("user_role", data.role, { expires: 30 });
+    setUserRole(data.role);
+    navigate("/");
+  };
 
-  const handleLogin = async (e) => {
-    e.preventDefault();
-    setErrorMsg("");
+  const isValid = email.trim().length >= 5 && password.trim().length >= 8;
 
-    if (!isPasswordValid) {
-      setErrorMsg("Password must be 8–16 characters long.");
-      return;
-    }
+  const submitForm = async (event) => {
+    event.preventDefault();
+
+    setEmail("");
+    setErrorP("");
+    setPassword("");
+    const apiUrl = "https://storehub-backend-wd2r.onrender.com/login";
+    const options = {
+      method: "POST",
+      headers: {
+        "Content-type": "application/json",
+      },
+      body: JSON.stringify({ email, password }),
+    };
 
     try {
-      const response = await fetch(
-        "https://storehub-backend-wd2r.onrender.com/login",
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ email, password }),
-        }
-      );
-
+      const response = await fetch(apiUrl, options);
       const data = await response.json();
+      console.log(data);
 
-      if (!response.ok) {
-        setErrorMsg(data.message || "Login failed.");
-        return;
+      if (response.ok) {
+        onValidUser(data);
+      } else {
+        setErrorP(data.message);
       }
-
-      Cookies.set("jwt_token", data.token, { expires: "30d" });
-      navigate("/");
-    } catch (err) {
-      setErrorMsg(data.message || "Some thing went wrong");
-      console.error(err);
+    } catch (error) {
+      console.log(error);
     }
   };
 
@@ -55,50 +60,57 @@ const Login = () => {
   }
 
   return (
-    <div className="login-container">
-      <form className="login-box" onSubmit={handleLogin}>
-        <h2>Login</h2>
-
-        {errorMsg && <p className="error">{errorMsg}</p>}
-
-        <label>Email</label>
-        <input
-          type="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          className="inputs"
-          required
+    <div className="bg-conatiner">
+      <div className="flex">
+        <img
+          src="https://res.cloudinary.com/dr2f4tmgc/image/upload/v1744707732/Login-img_uyslte.jpg"
+          className="login-img"
+          alt="Login Image"
         />
-
-        <label>Password</label>
-        <input
-          type={showPassword ? "text" : "password"}
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          className="inputs"
-          required
-        />
-
-        <div className="checkbox">
+        <form onSubmit={submitForm} className="form">
+          <label htmlFor="email" className="labels">
+            Email
+          </label>
           <input
-            type="checkbox"
-            id="showPassword"
-            checked={showPassword}
-            onChange={() => setShowPassword(!showPassword)}
+            type="email"
+            required
+            id="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            className="styled-input"
           />
-          <label htmlFor="showPassword">Show Password</label>
-        </div>
-
-        <button type="submit" disabled={!isFormValid}>
-          Log In
-        </button>
-
-        <p className="signup-text">
-          Don't have an account? <Link to="/signup">Signup</Link>
-        </p>
-      </form>
+          <label htmlFor="pwd" className="labels">
+            Password
+          </label>
+          <input
+            type={showPwd ? "text" : "password"}
+            id="pwd"
+            value={password}
+            required
+            onChange={(e) => setPassword(e.target.value)}
+            className="styled-input"
+          />
+          <div className="checkbox-con">
+            <input
+              type="checkbox"
+              id="checkbox"
+              onChange={() => setShowPwd((prev) => !prev)}
+            />
+            <label htmlFor="checkbox" className="labels show-label">
+              Show Password
+            </label>
+          </div>
+          <button className="login-btn" disabled={!isValid}>
+            Login
+          </button>
+          <p className="signup-text">
+            No Account? <Link to="/signup"> Signup</Link>
+          </p>
+          {errorP && <p className="error-para">{errorP}</p>}
+        </form>
+      </div>
     </div>
   );
-};
+}
 
 export default Login;
